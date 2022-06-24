@@ -12,10 +12,11 @@ const client = new Discord.Client({
 const { SlashCommandBuilder } = require("@discordjs/builders");
 const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v9");
+const axios = require("axios");
 
 // 봇과 서버를 연결해주는 부분
 client.login(
-  "OTg4MzAzNjgwODI0NTQ5NDA2.GOW8Bu.cPm-gVHCLduG3YUN-cpcO378atNuOF5x6IDG2U"
+  "OTg4MzAzNjgwODI0NTQ5NDA2.GBi1kx.9mb-kM0KLi1DLJBwm0B3zinqdZ3ZbxWsWaa4Hw"
 );
 
 // discord 봇이 실행될 때 딱 한 번 실행할 코드를 적는 부분
@@ -48,7 +49,7 @@ const registerCommands = (token, clientId, guildId) => {
 };
 
 registerCommands(
-  "OTg4MzAzNjgwODI0NTQ5NDA2.GOW8Bu.cPm-gVHCLduG3YUN-cpcO378atNuOF5x6IDG2U",
+  "OTg4MzAzNjgwODI0NTQ5NDA2.GBi1kx.9mb-kM0KLi1DLJBwm0B3zinqdZ3ZbxWsWaa4Hw",
   "988303680824549406",
   "974461844423061504"
 );
@@ -106,28 +107,49 @@ client.on("interactionCreate", async (interaction) => {
 });
 
 client.on("interactionCreate", async (interaction) => {
-  if (!interaction.isModalSubmit()) return;
+  try {
+    if (!interaction.isModalSubmit()) return;
 
-  const videoTime = interaction.fields.getTextInputValue("videoTimeInput");
-  const youtubeWatchCount = interaction.fields.getTextInputValue(
-    "youtubeWatchCountInput"
-  );
-  const baekjoonTime =
-    interaction.fields.getTextInputValue("baekjoonTimeInput");
-  const blogUploadCount = interaction.fields.getTextInputValue(
-    "blogUploadCountInput"
-  );
+    const videoTime = interaction.fields.getTextInputValue("videoTimeInput");
+    const youtubeWatchCount = interaction.fields.getTextInputValue(
+      "youtubeWatchCountInput"
+    );
+    const baekjoonTime =
+      interaction.fields.getTextInputValue("baekjoonTimeInput");
+    const blogUploadCount = interaction.fields.getTextInputValue(
+      "blogUploadCountInput"
+    );
 
-  console.log("videoTime", videoTime);
-  console.log("youtubeWatchCount", youtubeWatchCount);
-  console.log("baekjoonTime", baekjoonTime);
-  console.log("blogUploadCount", blogUploadCount);
+    console.log("videoTime", videoTime);
+    console.log("youtubeWatchCount", youtubeWatchCount);
+    console.log("baekjoonTime", baekjoonTime);
+    console.log("blogUploadCount", blogUploadCount);
 
-  if (interaction.customId === "studyTimeUploader") {
-    await interaction.reply({
-      content: "성공적으로 등록되었습니다.",
+    const data = {
+      id: interaction.user.id,
+      videoTime,
+      youtubeWatchCount,
+      baekjoonTime,
+      blogUploadCount,
+    };
+    await axios({
+      method: "post",
+      url: "v1.api.test:4041/studytime",
+      data: data,
     });
+
+    if (interaction.customId === "studyTimeUploader") {
+      await interaction.reply({
+        content: "성공적으로 등록되었습니다.",
+      });
+    }
+  } catch (e) {
+    console.log(e);
   }
+});
+
+client.on("messageCreate", (message) => {
+  console.log("message", message.content);
 });
 
 //delete slashCommands
